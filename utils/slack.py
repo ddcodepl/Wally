@@ -1,6 +1,6 @@
 import config.config as config
 import slack_sdk as slack
-
+import base64
 SLACK_BOT_TOKEN = config.slack['bot_token']
 client = slack.WebClient(token=SLACK_BOT_TOKEN)
 
@@ -18,29 +18,34 @@ def send_slack_message(message, file):
                 "text": message
             }
         },
+        # add button to create jira ticket with /jira command and pass the file as an argument
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Create Jira Ticket"
+                    },
+                    "value": "/jira "
+                }
+            ]
+        }
     ]
+
 
     ## add file if provided
     if file:
-        blocks.append({
-            "type": "image",
-            "image_url": file,
-            "alt_text": "Screenshot",
-            "title": {
-                "type": "plain_text",
-                "text": "Screenshot",
-                "emoji": True
-            }
-        })
-
-    # send slack message
-    response = client.chat_postMessage(
-        channel=config.slack['channel'],
-        text=message,
-        username=config.slack['username'],
-        icon_emoji=config.slack['icon_emoji'],
-        blocks=blocks
-    )
-
-    assert response["ok"]
-    assert response["message"]["text"] == message
+        # upload file to slack
+        with open(file, "rb") as f:
+            response = client.files_upload(
+                channels=config.slack['channel'],
+                file=f,
+                filename=file,
+                initial_comment=message,
+                icon_emoji=config.slack['icon_emoji'],
+                username=config.slack['username'],
+                title=file,
+                blocks=blocks
+            )

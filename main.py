@@ -39,11 +39,14 @@ else:
 def open_page(url):
     previous_crawl = None
 
+    screenshot_folder = Path('screenshots/' + parse_URL(url))
+    screenshot_folder.mkdir(parents=True, exist_ok=True)
+
     driver.get(url)
     wait.until(ec.presence_of_element_located((By.TAG_NAME, 'body')))
 
     body = driver.find_element(By.TAG_NAME, 'body')
-    time.sleep(5)
+    time.sleep(10)
     domain_path = parse_URL(driver.current_url)
 
     directory = "screenshots/" + domain_path
@@ -77,10 +80,11 @@ def open_page(url):
 
             if previous_crawl:
                 old_image = directory + previous_crawl + '/width-' + size + '.png'
-                new_image = directory + timestamp + '/width-' + size + '.png'
-                diff_image = directory + timestamp + '/width-' + size + '-diff.png'
 
-                compare_images(old_image, new_image, diff_image)
+                if os.path.isfile(old_image):
+                    new_image = directory + timestamp + '/width-' + size + '.png'
+                    diff_image = directory + timestamp + '/width-' + size + '-diff.png'
+                    compare_images(old_image, new_image, diff_image)
 
     with open(directory + "/last_crawl.txt", "w") as f:
         f.write(timestamp)
