@@ -7,12 +7,15 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 
 import config.config as config
 from utils.compare import compare_images
 from utils.utils import text_to_file, parse_URL
 
-driver = webdriver.Firefox(options=config.browser['options'])
+firefox_binary = FirefoxBinary("/usr/bin/firefox")
+driver = webdriver.Firefox(firefox_binary=firefox_binary, options=config.browser['options'])
+
 # loop over config extensions and install them
 for extension in config.browser['extensions']:
     driver.install_addon(os.path.abspath(extension), temporary=True)
@@ -34,6 +37,7 @@ if config.screen_sizes:
 else:
     print('No screen sizes provided!')
     sys.exit()
+
 
 # Main Functionality
 def open_page(url):
@@ -65,7 +69,7 @@ def open_page(url):
         Path(directory + "/" + timestamp).mkdir(parents=True, exist_ok=True)
 
     if config.save['source']:
-        content=driver.page_source
+        content = driver.page_source
         filepath = directory + "/" + timestamp + "/index.html"
         text_to_file(content, filepath)
 
@@ -84,10 +88,17 @@ def open_page(url):
                 if os.path.isfile(old_image):
                     new_image = directory + timestamp + '/width-' + size + '.png'
                     diff_image = directory + timestamp + '/width-' + size + '-diff.png'
-                    compare_images(old_image, new_image, diff_image)
+                    # try catch method to compare images
+                    try:
+                        compare_images(old_image, new_image, diff_image)
+                    except Exception as e:
+                        print(e)
+                        print('Error while comparing images!')
+
 
     with open(directory + "/last_crawl.txt", "w") as f:
         f.write(timestamp)
+
 
 def init():
     if isinstance(base_url, str):
@@ -96,5 +107,6 @@ def init():
         for page in base_url:
             open_page(page)
     driver.quit()
+
 
 init()
