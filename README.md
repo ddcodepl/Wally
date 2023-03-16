@@ -47,6 +47,17 @@ For all important information please rely on `config/config_example.py` file.
 
 ## Running 🚀
 
+## Docker 🐋
+
+The simplest way to run Wally is to use Docker. Only one command is required to run the script:
+
+```bash
+docker-compose up
+```
+
+### Local Machine 🖥
+
+
 ### Command line example
 
 ```bash
@@ -63,7 +74,7 @@ Please refer to `config/config_example.py` and check `sites` variable to see exa
 
 ## Supported browsers
 
-By default, we use Firefox so we support and use plugins for it, but nothing stops you from using Chrome and Chrome plugins, patter will be same.
+By default, we use Firefox, so we support and use plugins for it, but nothing stops you from using Chrome and Chrome plugins, patter will be same.
 
 Default plugins: 
 * [uBlock Origin](https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/)
